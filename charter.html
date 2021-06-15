@@ -1,0 +1,162 @@
+<html>
+
+<head>
+  <!--Load the AJAX API-->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', {
+      'packages': ['corechart', 'controls']
+    });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawDashboard);
+
+    function getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function drawDashboard() {
+      var queryString = encodeURIComponent('SELECT A, D, E, F, G, H, I, J, K, L, M');
+
+      var gdoc = getParameterByName('google_doc');
+
+      var queryparm = 'https://docs.google.com/spreadsheets/d/1BOmnawM770DFaMQa9KjXDrd-gfguCSFCPnOZ0p0Gu7Y/edit?usp=sharing&tq='
+
+      if (gdoc) {
+        queryparm = gdoc + '&tq=';
+
+        var query = new google.visualization.Query(
+          queryparm + queryString);
+        query.send(handleQueryResponse);
+
+        var osloggerdoc = getParameterByName('oslogger_doc');
+        var osloggerparm = '';
+        if (osloggerdoc) {
+          osloggerparm = osloggerdoc + '&tq=';
+          var osquerystring = encodeURIComponent('SELECT * ');
+
+          var osloggerquery = new google.visualization.Query(
+            osloggerparm + osquerystring
+          );
+
+          osloggerquery.send(handleOSLoggerQueryResponse);
+        }
+      }
+    }
+
+    function handleOSLoggerQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in OS Logger query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      var osdata = response.getDataTable();
+      var OSdashboard = new google.visualization.Dashboard(
+        document.getElementById('osdashboard_div'));
+
+      // Create a range slider, passing some options
+      var oslineRangeSlider = new google.visualization.ControlWrapper({
+        'controlType': 'ChartRangeFilter',
+        'containerId': 'osfilter_div',
+        'options': {
+          'filterColumnIndex': 0
+        }
+      });
+
+      // Create a line chart, passing some options
+      var oslineChart = new google.visualization.ChartWrapper({
+        'chartType': 'LineChart',
+        'containerId': 'oschart_div',
+        'options': {
+          'legend': 'right'
+        }
+
+      });
+      OSdashboard.bind(oslineRangeSlider, oslineChart);
+      OSdashboard.draw(osdata);
+    }
+
+    function handleQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+
+      var data = response.getDataTable();
+      var dashboard = new google.visualization.Dashboard(
+        document.getElementById('dashboard_div'));
+
+      // Create a range slider, passing some options
+      var lineRangeSlider = new google.visualization.ControlWrapper({
+        'controlType': 'ChartRangeFilter',
+        'containerId': 'filter_div',
+        'options': {
+          'filterColumnIndex': 0
+        }
+      });
+
+      // Create a line chart, passing some options
+      var lineChart = new google.visualization.ChartWrapper({
+        'chartType': 'LineChart',
+        'containerId': 'chart_div',
+        'options': {
+          'legend': 'right'
+        }
+      });
+
+      dashboard.bind(lineRangeSlider, lineChart);
+      dashboard.draw(data);
+    }
+  </script>
+</head>
+
+<body>
+  <H1>
+  </H1>
+  <div id="container">
+    <form action="signup.html" method="post" id="visualizeform">
+        <h1>Data Visualizer</h1>
+        <small></small>
+        <input type="text" placeholder="Sheet Path">
+        <small></small>
+        <input type="text" placeholder="Sheet Link">
+        <input type="submit" value="Visualize">
+    </form>
+  </div>
+  <script>
+    // Set up the form to accept charting inputs
+    const form = document.getElementById('visualizeform');
+    form.addEventListener('submit', (event) => {
+      alert('Form submitted');
+      event.preventDefault();
+    });
+  </script>
+  <!--Div that will hold the dashboard-->
+  <div id="dashboard_div">
+    <!--Divs that will hold each control and chart-->
+    <div id="filter_div"></div>
+    <div id="chart_div"></div>
+  </div>
+  <div id="osdashboard_div">
+    <div id="osfilter_div"></div>
+    <div id="oschart_div"></div>
+  </div>
+
+  <a
+    href='charter.html?google_doc="https://docs.google.com/spreadsheets/d/1ADCpeIWjWFMRL4u9-4kfrqYXPIWceYSq3vXiJCnCeRU/edit?usp=sharing"&oslogger_doc="https://docs.google.com/spreadsheets/d/18UpItLBSoMF9D1Kv4rwykyf6FeFvDXtOeelPDkGktZk/edit?usp=sharing"'>
+    LouisDrive 5/24 01 - Engineering Hallway (Large Motion Dual Tech) OSLogger</a>
+  <p></p>
+    <a
+    href='charter.html?google_doc="https://docs.google.com/spreadsheets/d/1ADCpeIWjWFMRL4u9-4kfrqYXPIWceYSq3vXiJCnCeRU/edit?usp=sharing"'>
+    LouisDrive 5/24 01 - Engineering Hallway (Large Motion Dual Tech)</a>
+  <p></p>
+  <a href='charter.html?google_doc="https://docs.google.com/spreadsheets/d/1P_kr31a4Tpau7yesyDEP1Z0El_UcX47RNiMT-W9YFl0/edit?usp=sharing"&oslogger_doc="https://docs.google.com/spreadsheets/d/1yttJElvYT4ZzxVK0P1w3TZOo9EaBcP338DyPyQUlRTs/edit?usp=sharing"'
+  >Louis Drive / ILCData / Starrwood Development Office / ilcdatalog.2021-05-27-08.07.32 OSLogger</a>
+</body>
+
+</html>
