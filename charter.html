@@ -22,7 +22,7 @@
     }
 
     function drawDashboard() {
-      var queryString = encodeURIComponent('SELECT A, D, E, F, G, H, I, J, K, L, M');
+      var queryString = encodeURIComponent('SELECT A, D, E, F, G, H, I, J, K, L, M where minute(A) < 1 ');
 
       var gdoc = getParameterByName('google_doc');
 
